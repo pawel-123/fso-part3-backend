@@ -9,7 +9,7 @@ node_modules/
 coverage/
 
 # production
-/build
+# /build commented out because we're using build folder for frontend app
 
 # misc
 .DS_Store
