@@ -1,51 +1,28 @@
-require('dotenv').config();
-const express = require('express');
-const morgan = require('morgan');
-const cors = require('cors');
-const Person = require('./models/person');
+require('dotenv').config()
+const express = require('express')
+const morgan = require('morgan')
+const cors = require('cors')
+const Person = require('./models/person')
 
-morgan.token('object', function getObject(req, res) {
-    if (req.method === "POST") {
-        return JSON.stringify(req.body);
+morgan.token('object', function getObject(req) {
+    if (req.method === 'POST') {
+        return JSON.stringify(req.body)
     }
 })
 
-const app = express();
+const app = express()
 
-app.use(express.json());
+app.use(express.json())
 app.use(express.static('build'))
-app.use(morgan(':method :url :status :res[content-length] - :response-time ms :object'));
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :object'))
 app.use(cors())
 
-let persons = [
-    {
-        id: 1,
-        name: "Arto Hellas",
-        number: "040-123456"
-    },
-    {
-        id: 2,
-        name: "Ada Lovelace",
-        number: "39-44-5323523"
-    },
-    {
-        id: 3,
-        name: "Dan Abramov",
-        number: "12-43-234345"
-    },
-    {
-        id: 4,
-        name: "Mary Poppendick",
-        number: "39-23-6423122"
-    }
-];
-
 app.get('/', (request, response) => {
-    response.send('<h1>testing 123456</h1>');
-});
+    response.send('<h1>testing 123456</h1>')
+})
 
 app.get('/info', (request, response, next) => {
-    const date = new Date();
+    const date = new Date()
     Person.find({})
         .then(persons => {
             response.send(`<p>Phonebook has info for ${persons.length} people</p><p>${date.toUTCString()}</p>`)
@@ -56,10 +33,10 @@ app.get('/info', (request, response, next) => {
 app.get('/api/persons', (request, response, next) => {
     Person.find({})
         .then(persons => {
-            response.json(persons);
+            response.json(persons)
         })
         .catch(error => next(error))
-});
+})
 
 app.get('/api/persons/:id', (request, response, next) => {
     Person.findById(request.params.id)
@@ -75,19 +52,14 @@ app.get('/api/persons/:id', (request, response, next) => {
 
 app.delete('/api/persons/:id', (request, response, next) => {
     Person.findByIdAndRemove(request.params.id)
-        .then(result => {
-            response.status(204).end();
+        .then(() => {
+            response.status(204).end()
         })
         .catch(error => next(error))
 })
 
-const generateId = () => {
-    const id = Math.floor(Math.random() * 100000);
-    return id;
-}
-
 app.post('/api/persons', (request, response, next) => {
-    const body = request.body;
+    const body = request.body
 
     if (!body.name) {
         return response.status(400).json({
@@ -132,7 +104,7 @@ const errorHandler = (error, request, response, next) => {
     console.error('using errorHandler')
     console.error(error.message)
 
-    if (error.name === 'CastError' && error.kind == 'ObjectId') {
+    if (error.name === 'CastError' && error.kind === 'ObjectId') {
         return response.status(400).send({ error: 'malformatted id' })
     } else if (error.name === 'ValidationError') {
         return response.status(400).json({ error: error.message })
@@ -143,8 +115,8 @@ const errorHandler = (error, request, response, next) => {
 
 app.use(errorHandler)
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+    console.log(`Server running on port ${PORT}`)
+})
 
